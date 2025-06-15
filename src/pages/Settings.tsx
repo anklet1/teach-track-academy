@@ -22,13 +22,22 @@ const Settings = () => {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const allowedTypes = ["image/jpeg", "image/png"];
+
+      if (!allowedTypes.includes(file.type)) {
+        toast.error("Please select a PNG or JPEG image.");
+        e.target.value = ""; // Clear the file input
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = (event) => {
         if (event.target && typeof event.target.result === 'string') {
           setProfilePic(event.target.result);
         }
       };
-      reader.readAsDataURL(e.target.files[0]);
+      reader.readAsDataURL(file);
     }
   };
 
@@ -89,7 +98,7 @@ const Settings = () => {
               </Avatar>
               <div className="space-y-2">
                 <Label htmlFor="profile-picture">Profile Picture</Label>
-                <Input id="profile-picture" type="file" accept="image/*" onChange={handleImageChange} className="file:text-primary" />
+                <Input id="profile-picture" type="file" accept="image/png, image/jpeg" onChange={handleImageChange} className="file:text-primary" />
               </div>
             </div>
             <div className="space-y-2">
