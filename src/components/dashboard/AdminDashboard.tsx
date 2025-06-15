@@ -1,3 +1,4 @@
+
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { allSubmissions as initialSubmissions, stats } from "@/data/mock";
@@ -7,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import StatsCard from "./StatsCard";
 import TeacherReportChart from "./TeacherReportChart";
-import { FolderCheck, Hourglass, AlertCircle, Users } from 'lucide-react';
+import { FolderCheck, Hourglass, AlertCircle, Users, ArrowUp, ArrowDown } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -41,10 +42,27 @@ const AdminDashboard = () => {
     }
   });
   const navigate = useNavigate();
+  const [sortDirection, setSortDirection] = useState<'ascending' | 'descending'>('ascending');
 
   useEffect(() => {
     localStorage.setItem('submissions', JSON.stringify(submissions));
   }, [submissions]);
+
+  const sortedSubmissions = useMemo(() => {
+    const sortableItems = [...submissions];
+    sortableItems.sort((a, b) => {
+      if (sortDirection === 'ascending') {
+        return a.week - b.week;
+      } else {
+        return b.week - a.week;
+      }
+    });
+    return sortableItems;
+  }, [submissions, sortDirection]);
+
+  const toggleSort = () => {
+    setSortDirection(prev => prev === 'ascending' ? 'descending' : 'ascending');
+  };
 
   const teacherReports = useMemo(() => {
     const reports: { [teacher: string]: { [status: string]: number } } = {};
@@ -110,13 +128,20 @@ const AdminDashboard = () => {
                 <TableHead>Teacher</TableHead>
                 <TableHead>Subject</TableHead>
                 <TableHead>Class</TableHead>
-                <TableHead>Week</TableHead>
+                <TableHead className="px-0">
+                  <Button variant="ghost" onClick={toggleSort}>
+                    Week
+                    {sortDirection === 'ascending' 
+                      ? <ArrowUp className="ml-2 h-4 w-4" /> 
+                      : <ArrowDown className="ml-2 h-4 w-4" />}
+                  </Button>
+                </TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {submissions.map((submission) => (
+              {sortedSubmissions.map((submission) => (
                 <TableRow key={submission.id}>
                   <TableCell>{submission.teacher}</TableCell>
                   <TableCell>{submission.subject}</TableCell>

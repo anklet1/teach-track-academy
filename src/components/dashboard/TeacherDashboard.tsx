@@ -1,5 +1,5 @@
 
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { teacherSubmissions as initialSubmissions } from "@/data/mock";
 import { toast } from "sonner";
-import { Upload } from "lucide-react";
+import { Upload, ArrowUp, ArrowDown } from "lucide-react";
 
 const getBadgeVariant = (status: string) => {
   switch (status) {
@@ -32,6 +32,23 @@ const TeacherDashboard = () => {
   const [submissions, setSubmissions] = useState(initialSubmissions);
   const [subjects] = useState(['Mathematics', 'English Language', 'Integrated Science', 'Social Studies', 'R.M.E']);
   const [classes] = useState(['JHS 1', 'JHS 2', 'JHS 3']);
+  const [sortDirection, setSortDirection] = useState<'ascending' | 'descending'>('ascending');
+
+  const sortedSubmissions = useMemo(() => {
+    const sortableItems = [...submissions];
+    sortableItems.sort((a, b) => {
+      if (sortDirection === 'ascending') {
+        return a.week - b.week;
+      } else {
+        return b.week - a.week;
+      }
+    });
+    return sortableItems;
+  }, [submissions, sortDirection]);
+
+  const toggleSort = () => {
+    setSortDirection(prev => prev === 'ascending' ? 'descending' : 'ascending');
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -148,14 +165,21 @@ const TeacherDashboard = () => {
                 <TableRow>
                   <TableHead>Subject</TableHead>
                   <TableHead>Class</TableHead>
-                  <TableHead>Week</TableHead>
+                  <TableHead className="px-0">
+                    <Button variant="ghost" onClick={toggleSort}>
+                      Week
+                      {sortDirection === 'ascending' 
+                        ? <ArrowUp className="ml-2 h-4 w-4" /> 
+                        : <ArrowDown className="ml-2 h-4 w-4" />}
+                    </Button>
+                  </TableHead>
                   <TableHead>Term</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Uploaded On</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {submissions.map((submission) => (
+                {sortedSubmissions.map((submission) => (
                   <TableRow key={submission.id}>
                     <TableCell>{submission.subject}</TableCell>
                     <TableCell>{submission.class}</TableCell>

@@ -1,9 +1,12 @@
-import { useState, useEffect } from "react";
+
+import { useState, useEffect, useMemo } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { allSubmissions as initialSubmissions } from "@/data/mock";
+import { Button } from "@/components/ui/button";
+import { ArrowUp, ArrowDown } from "lucide-react";
 
 const getBadgeVariant = (status: string) => {
   switch (status) {
@@ -18,14 +21,31 @@ type Submission = (typeof initialSubmissions)[0];
 
 const MySubmissions = () => {
     const [submissions, setSubmissions] = useState<Submission[]>([]);
+    const [sortDirection, setSortDirection] = useState<'ascending' | 'descending'>('ascending');
 
     useEffect(() => {
         const savedSubmissions = localStorage.getItem('submissions');
         const allSubmissions = savedSubmissions ? JSON.parse(savedSubmissions) : initialSubmissions;
         // In a real app, you'd filter by logged-in teacher
         // For now, we show all submissions
-        setSubmissions(allSubmissions.sort((a, b) => b.id - a.id));
+        setSubmissions(allSubmissions);
     }, []);
+
+    const sortedSubmissions = useMemo(() => {
+      const sortableItems = [...submissions];
+      sortableItems.sort((a, b) => {
+        if (sortDirection === 'ascending') {
+          return a.week - b.week;
+        } else {
+          return b.week - a.week;
+        }
+      });
+      return sortableItems;
+    }, [submissions, sortDirection]);
+
+    const toggleSort = () => {
+      setSortDirection(prev => prev === 'ascending' ? 'descending' : 'ascending');
+    };
 
 
   return (
@@ -40,13 +60,20 @@ const MySubmissions = () => {
               <TableRow>
                 <TableHead>Subject</TableHead>
                 <TableHead>Class</TableHead>
-                <TableHead>Week</TableHead>
+                <TableHead className="px-0">
+                  <Button variant="ghost" onClick={toggleSort}>
+                    Week
+                    {sortDirection === 'ascending' 
+                      ? <ArrowUp className="ml-2 h-4 w-4" /> 
+                      : <ArrowDown className="ml-2 h-4 w-4" />}
+                  </Button>
+                </TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {submissions.length > 0 ? submissions.map((submission) => (
+              {sortedSubmissions.length > 0 ? sortedSubmissions.map((submission) => (
                 <TableRow key={submission.id}>
                   <TableCell>{submission.subject}</TableCell>
                   <TableCell>{submission.class}</TableCell>
