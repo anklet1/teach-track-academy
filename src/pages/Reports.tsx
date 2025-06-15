@@ -2,12 +2,12 @@
 import { useMemo } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { submissions } from "@/data/mock";
+import { allSubmissions } from "@/data/mock";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 const Reports = () => {
   const statusData = useMemo(() => {
-    const statusCounts = submissions.reduce((acc, submission) => {
+    const statusCounts = allSubmissions.reduce((acc, submission) => {
       acc[submission.status] = (acc[submission.status] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -15,7 +15,7 @@ const Reports = () => {
   }, []);
 
   const teacherData = useMemo(() => {
-    const teacherCounts = submissions.reduce((acc, submission) => {
+    const teacherCounts = allSubmissions.reduce((acc, submission) => {
       acc[submission.teacher] = (acc[submission.teacher] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -62,10 +62,10 @@ const Reports = () => {
                   }}
                 >
                   {statusData.map((entry) => (
-                    <Cell key={`cell-${entry.name}`} fill={COLORS[entry.name] || '#cccccc'} />
+                    <Cell key={`cell-${entry.name}`} fill={COLORS[entry.name as keyof typeof COLORS] || '#cccccc'} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value, name) => [value, name]} />
+                <Tooltip formatter={(value, name) => [value, name as string]} />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
