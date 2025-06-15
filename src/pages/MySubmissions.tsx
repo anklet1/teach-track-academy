@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -52,7 +51,7 @@ const MySubmissions = () => {
                   <TableCell>{submission.subject}</TableCell>
                   <TableCell>{submission.class}</TableCell>
                   <TableCell>{submission.week}</TableCell>
-                  <TableCell>{submission.date}</TableCell>
+                  <TableCell>{submission.uploadedOn}</TableCell>
                   <TableCell>
                     <Badge variant={getBadgeVariant(submission.status) as any}>{submission.status}</Badge>
                   </TableCell>
