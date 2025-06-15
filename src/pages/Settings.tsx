@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,10 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { User } from 'lucide-react';
 
 const Settings = () => {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const role = searchParams.get('role') || 'teacher';
+
   const [subjects, setSubjects] = useState(['Mathematics', 'English Language', 'Integrated Science', 'Social Studies', 'R.M.E']);
   const [newSubject, setNewSubject] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
@@ -149,19 +154,21 @@ const Settings = () => {
                 ))}
               </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="new-subject">Add New Subject</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="new-subject"
-                  value={newSubject}
-                  onChange={(e) => setNewSubject(e.target.value)}
-                  placeholder="e.g. Creative Arts"
-                  onKeyDown={(e) => e.key === 'Enter' && handleAddSubject()}
-                />
-                <Button onClick={handleAddSubject}>Add Subject</Button>
+            {role === 'siso' && (
+              <div className="space-y-2">
+                <Label htmlFor="new-subject">Add New Subject</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="new-subject"
+                    value={newSubject}
+                    onChange={(e) => setNewSubject(e.target.value)}
+                    placeholder="e.g. Creative Arts"
+                    onKeyDown={(e) => e.key === 'Enter' && handleAddSubject()}
+                  />
+                  <Button onClick={handleAddSubject}>Add Subject</Button>
+                </div>
               </div>
-            </div>
+            )}
           </CardContent>
         </Card>
 
