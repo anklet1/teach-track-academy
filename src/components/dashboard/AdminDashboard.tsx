@@ -19,13 +19,13 @@ const getBadgeVariant = (status: string) => {
 const AdminDashboard = () => {
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div id="reports" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard title="Total Teachers" value={stats.totalSubmissions} icon={Users} description="Active teachers in the system" />
         <StatsCard title="Pending Review" value={stats.pendingReview} icon={Hourglass} description="Notes waiting for feedback" />
         <StatsCard title="Corrections Requested" value={stats.correctionsRequested} icon={AlertCircle} description="Notes sent back to teachers" />
         <StatsCard title="Approved This Week" value={15} icon={FolderCheck} description="Notes approved in Week 6" />
       </div>
-      <Card>
+      <Card id="review-notes">
         <CardHeader>
           <CardTitle>Recent Lesson Note Submissions</CardTitle>
         </CardHeader>

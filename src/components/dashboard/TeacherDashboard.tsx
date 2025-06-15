@@ -21,7 +21,7 @@ const TeacherDashboard = () => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div className="lg:col-span-1">
-        <Card>
+        <Card id="submit-note">
           <CardHeader>
             <CardTitle>Submit Lesson Note</CardTitle>
             <CardDescription>Upload your weekly lesson note for review.</CardDescription>
@@ -70,7 +70,7 @@ const TeacherDashboard = () => {
         </Card>
       </div>
       <div className="lg:col-span-2">
-        <Card>
+        <Card id="my-submissions">
           <CardHeader>
             <CardTitle>My Submissions</CardTitle>
           </CardHeader>
