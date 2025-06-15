@@ -9,6 +9,17 @@ import StatsCard from "./StatsCard";
 import TeacherReportChart from "./TeacherReportChart";
 import { FolderCheck, Hourglass, AlertCircle, Users, FileText } from 'lucide-react';
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 const getBadgeVariant = (status: string) => {
   switch (status) {
@@ -60,18 +71,59 @@ const SisoDashboard = () => {
     }));
   }, [submissions]);
   
-  const handleGenerateReport = () => {
-    toast.success("Report has been generated and sent to the Headteacher.");
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
+  const [reportContent, setReportContent] = useState("");
+
+  const handleSendReport = () => {
+    if (!reportContent.trim()) {
+      toast.error("Report content cannot be empty.");
+      return;
+    }
+    // In a real app, this would send the report to a server/backend.
+    console.log("Sending report:", reportContent);
+    toast.success("Report has been sent to the Headteacher.");
+    setReportContent("");
+    setIsReportDialogOpen(false);
   };
+
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">SISO Monitoring Dashboard</h2>
-        <Button onClick={handleGenerateReport}>
-          <FileText className="mr-2 h-4 w-4" />
-          Report to Headteacher
-        </Button>
+        <Dialog open={isReportDialogOpen} onOpenChange={setIsReportDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <FileText className="mr-2 h-4 w-4" />
+              Report to Headteacher
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Write Report</DialogTitle>
+              <DialogDescription>
+                Compose your report for the headteacher here. Click send when you're done.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid w-full gap-1.5">
+                <Label htmlFor="report-content">
+                  Report
+                </Label>
+                <Textarea
+                  id="report-content"
+                  value={reportContent}
+                  onChange={(e) => setReportContent(e.target.value)}
+                  placeholder="Type your report here..."
+                  className="min-h-[150px]"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="button" onClick={handleSendReport}>Send Report</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div id="reports" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
