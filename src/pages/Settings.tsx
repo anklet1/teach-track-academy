@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -15,6 +14,8 @@ const Settings = () => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [name, setName] = useState(localStorage.getItem('teacherName') || 'Teacher Name');
+  const [email, setEmail] = useState(localStorage.getItem('teacherEmail') || 'teacher@school.com');
 
   const handleAddSubject = () => {
     const trimmedSubject = newSubject.trim();
@@ -32,6 +33,9 @@ const Settings = () => {
   };
 
   const handleSaveChanges = () => {
+    localStorage.setItem('teacherName', name);
+    localStorage.setItem('teacherEmail', email);
+    window.dispatchEvent(new Event("profileUpdated"));
     toast.success("Profile updated successfully!");
   };
 
@@ -62,11 +66,11 @@ const Settings = () => {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
-              <Input id="name" defaultValue="Teacher Name" />
+              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" defaultValue="teacher@school.com" />
+              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
             <Button onClick={handleSaveChanges}>Save Changes</Button>
           </CardContent>
