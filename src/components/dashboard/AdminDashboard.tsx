@@ -1,11 +1,22 @@
 
-import { allSubmissions, stats } from "@/data/mock";
+import { useState } from "react";
+import { allSubmissions as initialSubmissions, stats } from "@/data/mock";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import StatsCard from "./StatsCard";
 import { FolderCheck, Hourglass, AlertCircle, Users } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
 
 const getBadgeVariant = (status: string) => {
   switch (status) {
@@ -16,7 +27,37 @@ const getBadgeVariant = (status: string) => {
   }
 };
 
+type Submission = (typeof initialSubmissions)[0];
+
 const AdminDashboard = () => {
+  const [submissions, setSubmissions] = useState(initialSubmissions);
+  const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
+  const [feedback, setFeedback] = useState("");
+
+  const handleReviewClick = (submission: Submission) => {
+    setSelectedSubmission(submission);
+    setFeedback("");
+  };
+
+  const handleStatusUpdate = (newStatus: string) => {
+    if (!selectedSubmission) return;
+
+    if ((newStatus === 'Needs Correction' || newStatus === 'Rejected') && !feedback.trim()) {
+      toast.error("Feedback is required for this action.");
+      return;
+    }
+
+    setSubmissions(
+      submissions.map((sub) =>
+        sub.id === selectedSubmission.id ? { ...sub, status: newStatus } : sub
+      )
+    );
+    
+    console.log(`Status for submission ${selectedSubmission.id} updated to ${newStatus}. Feedback: ${feedback}`);
+    toast.success(`Submission status updated to "${newStatus}".`);
+    setSelectedSubmission(null);
+  };
+
   return (
     <div className="space-y-6">
       <div id="reports" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -42,7 +83,7 @@ const AdminDashboard = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {allSubmissions.map((submission) => (
+              {submissions.map((submission) => (
                 <TableRow key={submission.id}>
                   <TableCell>{submission.teacher}</TableCell>
                   <TableCell>{submission.subject}</TableCell>
@@ -52,7 +93,7 @@ const AdminDashboard = () => {
                     <Badge variant={getBadgeVariant(submission.status) as any}>{submission.status}</Badge>
                   </TableCell>
                   <TableCell>
-                    <Button variant="outline" size="sm">Review</Button>
+                    <Button variant="outline" size="sm" onClick={() => handleReviewClick(submission)}>Review</Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -60,6 +101,42 @@ const AdminDashboard = () => {
           </Table>
         </CardContent>
       </Card>
+
+      {selectedSubmission && (
+        <Dialog open={!!selectedSubmission} onOpenChange={(isOpen) => !isOpen && setSelectedSubmission(null)}>
+          <DialogContent className="sm:max-w-xl">
+            <DialogHeader>
+              <DialogTitle>Review Lesson Note</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2 text-sm">
+                <p><strong>Teacher:</strong> {selectedSubmission.teacher}</p>
+                <p><strong>Subject:</strong> {selectedSubmission.subject}</p>
+                <p><strong>Class:</strong> {selectedSubmission.class}</p>
+                <p><strong>Week:</strong> {selectedSubmission.week}</p>
+                <div className="flex items-center gap-2"><strong>Status:</strong> <Badge variant={getBadgeVariant(selectedSubmission.status) as any}>{selectedSubmission.status}</Badge></div>
+                <div className="flex items-center gap-1"><strong>File:</strong> <Button variant="link" className="p-0 h-auto text-sm">Download Lesson Note</Button></div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="feedback">Feedback</Label>
+                <Textarea
+                  id="feedback"
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  placeholder="Provide feedback for the teacher. Required for 'Needs Correction' or 'Rejected'."
+                  className="min-h-[100px]"
+                />
+              </div>
+            </div>
+            <DialogFooter className="flex-wrap gap-2 sm:justify-end">
+               <Button variant="ghost" onClick={() => setSelectedSubmission(null)}>Cancel</Button>
+               <Button variant="destructive" onClick={() => handleStatusUpdate('Rejected')}>Reject</Button>
+               <Button variant="secondary" onClick={() => handleStatusUpdate('Needs Correction')}>Needs Correction</Button>
+               <Button onClick={() => handleStatusUpdate('Approved')}>Approve</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };
