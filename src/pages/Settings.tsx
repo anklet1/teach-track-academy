@@ -1,12 +1,24 @@
 
+import { useState } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 
 const Settings = () => {
+  const [subjects, setSubjects] = useState(['Mathematics', 'English Language', 'Integrated Science', 'Social Studies', 'R.M.E']);
+  const [newSubject, setNewSubject] = useState('');
+
+  const handleAddSubject = () => {
+    if (newSubject.trim() && !subjects.includes(newSubject.trim())) {
+      setSubjects([...subjects, newSubject.trim()]);
+      setNewSubject('');
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6 max-w-4xl mx-auto">
@@ -48,6 +60,36 @@ const Settings = () => {
               <Input id="confirm-password" type="password" />
             </div>
             <Button>Update Password</Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Subjects</CardTitle>
+            <CardDescription>Manage school subjects.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>Existing Subjects</Label>
+              <div className="flex flex-wrap gap-2">
+                {subjects.map(subject => (
+                  <Badge key={subject} variant="secondary">{subject}</Badge>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-subject">Add New Subject</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="new-subject"
+                  value={newSubject}
+                  onChange={(e) => setNewSubject(e.target.value)}
+                  placeholder="e.g. Creative Arts"
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddSubject()}
+                />
+                <Button onClick={handleAddSubject}>Add Subject</Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
