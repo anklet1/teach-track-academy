@@ -19,6 +19,10 @@ const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
         setUserName('Head Teacher');
         setUserEmail('admin@school.com');
         setProfilePic('');
+      } else if (role === 'siso') {
+        setUserName('SISO');
+        setUserEmail('siso@school.com');
+        setProfilePic('');
       } else {
         setUserName(localStorage.getItem('teacherName') || 'Teacher');
         setUserEmail(localStorage.getItem('teacherEmail') || 'teacher@school.com');

@@ -7,7 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 const Login = () => {
   const navigate = useNavigate();
 
-  const handleLogin = (role: 'teacher' | 'admin') => {
+  const handleLogin = (role: 'teacher' | 'admin' | 'siso') => {
     // In a real app, you'd perform authentication here.
     // For now, we'll just navigate to the dashboard with a query param.
     navigate(`/dashboard?role=${role}`);
@@ -33,6 +33,9 @@ const Login = () => {
           </Button>
           <Button size="lg" variant="outline" onClick={() => handleLogin('admin')}>
             Sign in as Head Teacher/Admin
+          </Button>
+          <Button size="lg" variant="outline" onClick={() => handleLogin('siso')}>
+            Sign in as SISO
           </Button>
           <div className="text-center mt-4">
             <Link to="/" className="text-sm text-primary hover:underline">

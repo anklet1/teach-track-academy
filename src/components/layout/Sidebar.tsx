@@ -1,6 +1,6 @@
 
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Upload, CheckSquare, BarChart, Settings, BookOpen, LogOut } from 'lucide-react';
+import { Home, Upload, CheckSquare, BarChart, Settings, BookOpen, LogOut, Monitor } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const commonLinks = [
@@ -18,11 +18,26 @@ const adminLinks = [
   { href: '/reports', label: 'Reports', icon: BarChart },
 ];
 
+const sisoLinks = [
+  { href: '/dashboard', label: 'Monitor Teachers', icon: Monitor },
+  { href: '/reports', label: 'Reports', icon: BarChart },
+];
+
 const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const role = searchParams.get('role') || 'teacher';
-  const links = role === 'admin' ? [...commonLinks.slice(0, 1), ...adminLinks, ...commonLinks.slice(1)] : [...commonLinks.slice(0, 1), ...teacherLinks, ...commonLinks.slice(1)];
+  
+  let currentLinks;
+  if (role === 'admin') {
+    currentLinks = adminLinks;
+  } else if (role === 'siso') {
+    currentLinks = sisoLinks;
+  } else {
+    currentLinks = teacherLinks;
+  }
+  const links = [...commonLinks.slice(0, 1), ...currentLinks, ...commonLinks.slice(1)];
+
 
   return (
     <>
@@ -38,9 +53,16 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
         <nav className="p-4 flex flex-col h-[calc(100%-120px)]">
             <ul className="space-y-2 flex-grow">
             {links.map((link) => {
+              const isActive = location.pathname === link.href;
               return (
                 <li key={link.label}>
-                  <Link to={{ pathname: link.href, search: location.search }} className="flex items-center gap-3 p-2 rounded-md hover:bg-gray-700 transition-colors">
+                  <Link 
+                    to={{ pathname: link.href, search: location.search }} 
+                    className={cn(
+                      "flex items-center gap-3 p-2 rounded-md hover:bg-gray-700 transition-colors",
+                      isActive && "bg-gray-700"
+                    )}
+                  >
                     <link.icon className="w-5 h-5" />
                     <span>{link.label}</span>
                   </Link>
