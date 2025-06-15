@@ -1,11 +1,12 @@
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { allSubmissions as initialSubmissions, stats } from "@/data/mock";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import StatsCard from "./StatsCard";
+import TeacherReportChart from "./TeacherReportChart";
 import { FolderCheck, Hourglass, AlertCircle, Users } from 'lucide-react';
 import {
   Dialog,
@@ -33,6 +34,29 @@ const AdminDashboard = () => {
   const [submissions, setSubmissions] = useState(initialSubmissions);
   const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
   const [feedback, setFeedback] = useState("");
+
+  const teacherReports = useMemo(() => {
+    const reports: { [teacher: string]: { [status: string]: number } } = {};
+
+    submissions.forEach(submission => {
+      if (!reports[submission.teacher]) {
+        reports[submission.teacher] = {
+          'Approved': 0,
+          'Pending': 0,
+          'Rejected': 0,
+          'Needs Correction': 0,
+        };
+      }
+      if (submission.status in reports[submission.teacher]) {
+         reports[submission.teacher][submission.status]++;
+      }
+    });
+
+    return Object.entries(reports).map(([teacherName, stats]) => ({
+      teacherName,
+      data: Object.entries(stats).map(([status, count]) => ({ status, count })),
+    }));
+  }, [submissions]);
 
   const handleReviewClick = (submission: Submission) => {
     setSelectedSubmission(submission);
@@ -66,6 +90,24 @@ const AdminDashboard = () => {
         <StatsCard title="Corrections Requested" value={stats.correctionsRequested} icon={AlertCircle} description="Notes sent back to teachers" />
         <StatsCard title="Approved This Week" value={15} icon={FolderCheck} description="Notes approved in Week 6" />
       </div>
+
+      <Card id="teacher-reports">
+        <CardHeader>
+          <CardTitle>Teacher Submission Reports</CardTitle>
+        </CardHeader>
+        <CardContent>
+           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {teacherReports.map((report) => (
+              <TeacherReportChart
+                key={report.teacherName}
+                teacherName={report.teacherName}
+                data={report.data}
+              />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+      
       <Card id="review-notes">
         <CardHeader>
           <CardTitle>Recent Lesson Note Submissions</CardTitle>
