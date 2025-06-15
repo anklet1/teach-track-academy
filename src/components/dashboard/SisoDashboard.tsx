@@ -1,4 +1,3 @@
-
 import { useState, useMemo, useEffect } from "react";
 import { allSubmissions as initialSubmissions, stats } from "@/data/mock";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +19,13 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const getBadgeVariant = (status: string) => {
   switch (status) {
@@ -43,15 +49,33 @@ const SisoDashboard = () => {
     }
   });
   const [sortDirection, setSortDirection] = useState<'ascending' | 'descending'>('ascending');
-
+  const [selectedClass, setSelectedClass] = useState('All Classes');
+  const [selectedWeek, setSelectedWeek] = useState('All Weeks');
 
   useEffect(() => {
     // In a real app, this might not be needed if SISO doesn't modify data
     localStorage.setItem('submissions', JSON.stringify(submissions));
   }, [submissions]);
 
-  const sortedSubmissions = useMemo(() => {
-    const sortableItems = [...submissions];
+  const classes = useMemo(() => ['All Classes', ...new Set(submissions.map(s => s.class))], [submissions]);
+  const weeks = useMemo(() => {
+      const weekSet = new Set(submissions.map(s => s.week.toString()));
+      const weekArray = Array.from(weekSet).sort((a, b) => parseInt(a) - parseInt(b));
+      return ['All Weeks', ...weekArray];
+  }, [submissions]);
+
+  const filteredAndSortedSubmissions = useMemo(() => {
+    let filteredSubmissions = [...submissions];
+    
+    if (selectedClass !== 'All Classes') {
+      filteredSubmissions = filteredSubmissions.filter(s => s.class === selectedClass);
+    }
+
+    if (selectedWeek !== 'All Weeks') {
+      filteredSubmissions = filteredSubmissions.filter(s => s.week === parseInt(selectedWeek, 10));
+    }
+
+    const sortableItems = [...filteredSubmissions];
     sortableItems.sort((a, b) => {
       if (sortDirection === 'ascending') {
         return a.week - b.week;
@@ -60,7 +84,7 @@ const SisoDashboard = () => {
       }
     });
     return sortableItems;
-  }, [submissions, sortDirection]);
+  }, [submissions, sortDirection, selectedClass, selectedWeek]);
 
   const toggleSort = () => {
     setSortDirection(prev => prev === 'ascending' ? 'descending' : 'ascending');
@@ -103,7 +127,6 @@ const SisoDashboard = () => {
     setReportContent("");
     setIsReportDialogOpen(false);
   };
-
 
   return (
     <div className="space-y-6">
@@ -170,7 +193,27 @@ const SisoDashboard = () => {
       
       <Card id="review-notes">
         <CardHeader>
-          <CardTitle>Recent Lesson Note Submissions</CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle>Recent Lesson Note Submissions</CardTitle>
+            <div className="flex items-center gap-2">
+              <Select value={selectedClass} onValueChange={setSelectedClass}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select a class" />
+                </SelectTrigger>
+                <SelectContent>
+                  {classes.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Select value={selectedWeek} onValueChange={setSelectedWeek}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select a week" />
+                </SelectTrigger>
+                <SelectContent>
+                  {weeks.map(w => <SelectItem key={w} value={w}>{w}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
@@ -191,7 +234,7 @@ const SisoDashboard = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sortedSubmissions.map((submission) => (
+              {filteredAndSortedSubmissions.map((submission) => (
                 <TableRow key={submission.id}>
                   <TableCell>{submission.teacher}</TableCell>
                   <TableCell>{submission.subject}</TableCell>
