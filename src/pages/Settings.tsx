@@ -7,16 +7,47 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 const Settings = () => {
   const [subjects, setSubjects] = useState(['Mathematics', 'English Language', 'Integrated Science', 'Social Studies', 'R.M.E']);
   const [newSubject, setNewSubject] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleAddSubject = () => {
-    if (newSubject.trim() && !subjects.includes(newSubject.trim())) {
-      setSubjects([...subjects, newSubject.trim()]);
-      setNewSubject('');
+    const trimmedSubject = newSubject.trim();
+    if (!trimmedSubject) {
+      toast.error("Please enter a subject name.");
+      return;
     }
+    if (subjects.map(s => s.toLowerCase()).includes(trimmedSubject.toLowerCase())) {
+      toast.error(`Subject "${trimmedSubject}" already exists.`);
+      return;
+    }
+    setSubjects([...subjects, trimmedSubject]);
+    setNewSubject('');
+    toast.success(`Subject "${trimmedSubject}" added successfully.`);
+  };
+
+  const handleSaveChanges = () => {
+    toast.success("Profile updated successfully!");
+  };
+
+  const handleUpdatePassword = () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      toast.error("Please fill in all password fields.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("New passwords do not match.");
+      return;
+    }
+    toast.success("Password updated successfully!");
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
   };
 
   return (
@@ -37,7 +68,7 @@ const Settings = () => {
               <Label htmlFor="email">Email</Label>
               <Input id="email" type="email" defaultValue="teacher@school.com" />
             </div>
-            <Button>Save Changes</Button>
+            <Button onClick={handleSaveChanges}>Save Changes</Button>
           </CardContent>
         </Card>
 
@@ -49,17 +80,17 @@ const Settings = () => {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="current-password">Current Password</Label>
-              <Input id="current-password" type="password" />
+              <Input id="current-password" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="new-password">New Password</Label>
-              <Input id="new-password" type="password" />
+              <Input id="new-password" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
             </div>
              <div className="space-y-2">
               <Label htmlFor="confirm-password">Confirm New Password</Label>
-              <Input id="confirm-password" type="password" />
+              <Input id="confirm-password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
             </div>
-            <Button>Update Password</Button>
+            <Button onClick={handleUpdatePassword}>Update Password</Button>
           </CardContent>
         </Card>
 
