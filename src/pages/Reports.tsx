@@ -1,26 +1,46 @@
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { allSubmissions } from "@/data/mock";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const Reports = () => {
+  const [selectedClass, setSelectedClass] = useState('All Classes');
+
+  const classes = useMemo(() => ['All Classes', ...new Set(allSubmissions.map(s => s.class))], []);
+
+  const filteredSubmissions = useMemo(() => {
+    if (selectedClass === 'All Classes') {
+      return allSubmissions;
+    }
+    return allSubmissions.filter(submission => submission.class === selectedClass);
+  }, [selectedClass]);
+
   const statusData = useMemo(() => {
-    const statusCounts = allSubmissions.reduce((acc, submission) => {
+    const statusCounts = filteredSubmissions.reduce((acc, submission) => {
       acc[submission.status] = (acc[submission.status] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
     return Object.entries(statusCounts).map(([name, value]) => ({ name, value }));
-  }, []);
+  }, [filteredSubmissions]);
 
   const teacherData = useMemo(() => {
-    const teacherCounts = allSubmissions.reduce((acc, submission) => {
+    const teacherCounts = filteredSubmissions.reduce((acc, submission) => {
       acc[submission.teacher] = (acc[submission.teacher] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
-    return Object.entries(teacherCounts).map(([name, submissions]) => ({ name, submissions }));
-  }, []);
+    return Object.entries(teacherCounts)
+      .map(([name, submissions]) => ({ name, submissions }))
+      .sort((a, b) => b.submissions - a.submissions);
+  }, [filteredSubmissions]);
 
   const COLORS = {
     'Approved': '#10B981',
@@ -31,7 +51,17 @@ const Reports = () => {
 
   return (
     <DashboardLayout>
-      <h1 className="text-2xl font-bold mb-4">Reports</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">Reports</h1>
+        <Select value={selectedClass} onValueChange={setSelectedClass}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Select a class" />
+          </SelectTrigger>
+          <SelectContent>
+            {classes.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+          </SelectContent>
+        </Select>
+      </div>
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
