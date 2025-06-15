@@ -25,11 +25,13 @@ const TeacherDashboard = () => {
   const [term, setTerm] = useState("");
   const [week, setWeek] = useState("");
   const [subject, setSubject] = useState("");
+  const [classValue, setClassValue] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [submissions, setSubmissions] = useState(initialSubmissions);
   const [subjects] = useState(['Mathematics', 'English Language', 'Integrated Science', 'Social Studies', 'R.M.E']);
+  const [classes] = useState(['JHS 1', 'JHS 2', 'JHS 3']);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -38,7 +40,7 @@ const TeacherDashboard = () => {
   };
 
   const handleSubmit = () => {
-    if (!term || !week || !subject || !file) {
+    if (!term || !week || !subject || !classValue || !file) {
       toast.error("Please fill all fields and select a file.");
       return;
     }
@@ -46,8 +48,9 @@ const TeacherDashboard = () => {
     const newSubmission = {
       id: submissions.length + 1,
       subject,
-      week: `Week ${week}`,
-      term: `Term ${term}`,
+      class: classValue,
+      week: Number(week),
+      term: Number(term),
       status: "Pending",
       uploadedOn: new Date().toLocaleDateString("en-GB"),
     };
@@ -59,6 +62,7 @@ const TeacherDashboard = () => {
     setTerm("");
     setWeek("");
     setSubject("");
+    setClassValue("");
     setFile(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -101,6 +105,17 @@ const TeacherDashboard = () => {
               </Select>
             </div>
             <div className="space-y-2">
+              <Label htmlFor="class">Class</Label>
+              <Select value={classValue} onValueChange={setClassValue}>
+                <SelectTrigger id="class">
+                  <SelectValue placeholder="Select Class" />
+                </SelectTrigger>
+                <SelectContent>
+                  {classes.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="subject">Subject</Label>
               <Select value={subject} onValueChange={setSubject}>
                 <SelectTrigger id="subject">
@@ -132,6 +147,7 @@ const TeacherDashboard = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Subject</TableHead>
+                  <TableHead>Class</TableHead>
                   <TableHead>Week</TableHead>
                   <TableHead>Term</TableHead>
                   <TableHead>Status</TableHead>
@@ -142,6 +158,7 @@ const TeacherDashboard = () => {
                 {submissions.map((submission) => (
                   <TableRow key={submission.id}>
                     <TableCell>{submission.subject}</TableCell>
+                    <TableCell>{submission.class}</TableCell>
                     <TableCell>{submission.week}</TableCell>
                     <TableCell>{submission.term}</TableCell>
                     <TableCell>
