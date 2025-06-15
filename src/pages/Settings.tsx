@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { User } from 'lucide-react';
+import { User, X } from 'lucide-react';
 
 const Settings = () => {
   const location = useLocation();
@@ -59,6 +59,11 @@ const Settings = () => {
     setSubjects([...subjects, trimmedSubject]);
     setNewSubject('');
     toast.success(`Subject "${trimmedSubject}" added successfully.`);
+  };
+
+  const handleDeleteSubject = (subjectToDelete: string) => {
+    setSubjects(subjects.filter(subject => subject !== subjectToDelete));
+    toast.success(`Subject "${subjectToDelete}" removed successfully.`);
   };
 
   const handleSaveChanges = () => {
@@ -150,11 +155,22 @@ const Settings = () => {
               <Label>Existing Subjects</Label>
               <div className="flex flex-wrap gap-2">
                 {subjects.map(subject => (
-                  <Badge key={subject} variant="secondary">{subject}</Badge>
+                  <Badge key={subject} variant="secondary" className="group relative pr-7">
+                    {subject}
+                    {role === 'teacher' && (
+                      <button
+                        onClick={() => handleDeleteSubject(subject)}
+                        className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full p-0.5 transition-opacity opacity-0 group-hover:opacity-100 hover:bg-destructive/20"
+                        aria-label={`Remove ${subject}`}
+                      >
+                        <X className="h-3 w-3 text-destructive" />
+                      </button>
+                    )}
+                  </Badge>
                 ))}
               </div>
             </div>
-            {role === 'siso' && (
+            {role === 'teacher' && (
               <div className="space-y-2">
                 <Label htmlFor="new-subject">Add New Subject</Label>
                 <div className="flex gap-2">
