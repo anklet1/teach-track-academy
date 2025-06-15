@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { User } from 'lucide-react';
 
 const Settings = () => {
   const [subjects, setSubjects] = useState(['Mathematics', 'English Language', 'Integrated Science', 'Social Studies', 'R.M.E']);
@@ -16,6 +18,19 @@ const Settings = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState(localStorage.getItem('teacherName') || 'Teacher Name');
   const [email, setEmail] = useState(localStorage.getItem('teacherEmail') || 'teacher@school.com');
+  const [profilePic, setProfilePic] = useState(localStorage.getItem('profilePic') || '');
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target && typeof event.target.result === 'string') {
+          setProfilePic(event.target.result);
+        }
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  };
 
   const handleAddSubject = () => {
     const trimmedSubject = newSubject.trim();
@@ -35,6 +50,7 @@ const Settings = () => {
   const handleSaveChanges = () => {
     localStorage.setItem('teacherName', name);
     localStorage.setItem('teacherEmail', email);
+    localStorage.setItem('profilePic', profilePic);
     window.dispatchEvent(new Event("profileUpdated"));
     toast.success("Profile updated successfully!");
   };
@@ -61,9 +77,21 @@ const Settings = () => {
         <Card>
           <CardHeader>
             <CardTitle>Profile</CardTitle>
-            <CardDescription>Update your personal information.</CardDescription>
+            <CardDescription>Update your personal information and profile picture.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+             <div className="flex items-center gap-4">
+              <Avatar className="h-20 w-20">
+                <AvatarImage src={profilePic} alt={name} />
+                <AvatarFallback>
+                  <User className="h-10 w-10" />
+                </AvatarFallback>
+              </Avatar>
+              <div className="space-y-2">
+                <Label htmlFor="profile-picture">Profile Picture</Label>
+                <Input id="profile-picture" type="file" accept="image/*" onChange={handleImageChange} className="file:text-primary" />
+              </div>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
               <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
