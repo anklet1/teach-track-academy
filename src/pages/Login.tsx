@@ -19,7 +19,7 @@ const Login = () => {
         <CardHeader className="text-center">
           <div className="flex justify-center items-center gap-2 mb-2">
             <BookOpen className="w-8 h-8 text-primary" />
-            <h1 className="text-2xl font-bold text-gray-800">TMS</h1>
+            <h1 className="text-2xl font-bold text-gray-800">EduNeuron AI</h1>
           </div>
           <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
           <CardDescription>Select your role to sign in to the dashboard.</CardDescription>

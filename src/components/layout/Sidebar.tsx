@@ -1,4 +1,3 @@
-
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Upload, CheckSquare, BarChart, Settings, BookOpen, LogOut, Monitor } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -48,7 +47,7 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
       )}>
         <div className="p-4 flex items-center gap-2 border-b border-gray-700">
           <BookOpen className="w-8 h-8 text-primary" />
-          <h1 className="text-2xl font-bold">TMS</h1>
+          <h1 className="text-2xl font-bold">EduNeuron AI</h1>
         </div>
         <nav className="p-4 flex flex-col h-[calc(100%-120px)]">
             <ul className="space-y-2 flex-grow">
