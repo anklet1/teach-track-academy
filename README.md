@@ -1,4 +1,7 @@
-# Welcome to your Lovable project
+
+# Welcome to EduNeuron AI
+
+This project is the frontend implementation for EduNeuron AI, an AI-powered platform designed to improve teacher effectiveness, student performance, and school monitoring in underserved communities in Africa, starting with Ghana.
 
 ## Project info
 
