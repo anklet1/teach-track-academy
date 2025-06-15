@@ -1,5 +1,5 @@
-
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { allSubmissions as initialSubmissions, stats } from "@/data/mock";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -31,9 +31,20 @@ const getBadgeVariant = (status: string) => {
 type Submission = (typeof initialSubmissions)[0];
 
 const AdminDashboard = () => {
-  const [submissions, setSubmissions] = useState(initialSubmissions);
-  const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
-  const [feedback, setFeedback] = useState("");
+  const [submissions, setSubmissions] = useState<Submission[]>(() => {
+    try {
+      const savedSubmissions = localStorage.getItem('submissions');
+      return savedSubmissions ? JSON.parse(savedSubmissions) : initialSubmissions;
+    } catch (error) {
+      console.error("Error parsing submissions from localStorage", error);
+      return initialSubmissions;
+    }
+  });
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    localStorage.setItem('submissions', JSON.stringify(submissions));
+  }, [submissions]);
 
   const teacherReports = useMemo(() => {
     const reports: { [teacher: string]: { [status: string]: number } } = {};
@@ -59,27 +70,7 @@ const AdminDashboard = () => {
   }, [submissions]);
 
   const handleReviewClick = (submission: Submission) => {
-    setSelectedSubmission(submission);
-    setFeedback("");
-  };
-
-  const handleStatusUpdate = (newStatus: string) => {
-    if (!selectedSubmission) return;
-
-    if ((newStatus === 'Needs Correction' || newStatus === 'Rejected') && !feedback.trim()) {
-      toast.error("Feedback is required for this action.");
-      return;
-    }
-
-    setSubmissions(
-      submissions.map((sub) =>
-        sub.id === selectedSubmission.id ? { ...sub, status: newStatus } : sub
-      )
-    );
-    
-    console.log(`Status for submission ${selectedSubmission.id} updated to ${newStatus}. Feedback: ${feedback}`);
-    toast.success(`Submission status updated to "${newStatus}".`);
-    setSelectedSubmission(null);
+    navigate(`/review/${submission.id}?role=admin`);
   };
 
   return (
@@ -143,42 +134,6 @@ const AdminDashboard = () => {
           </Table>
         </CardContent>
       </Card>
-
-      {selectedSubmission && (
-        <Dialog open={!!selectedSubmission} onOpenChange={(isOpen) => !isOpen && setSelectedSubmission(null)}>
-          <DialogContent className="sm:max-w-xl">
-            <DialogHeader>
-              <DialogTitle>Review Lesson Note</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2 text-sm">
-                <p><strong>Teacher:</strong> {selectedSubmission.teacher}</p>
-                <p><strong>Subject:</strong> {selectedSubmission.subject}</p>
-                <p><strong>Class:</strong> {selectedSubmission.class}</p>
-                <p><strong>Week:</strong> {selectedSubmission.week}</p>
-                <div className="flex items-center gap-2"><strong>Status:</strong> <Badge variant={getBadgeVariant(selectedSubmission.status) as any}>{selectedSubmission.status}</Badge></div>
-                <div className="flex items-center gap-1"><strong>File:</strong> <Button variant="link" className="p-0 h-auto text-sm">Download Lesson Note</Button></div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="feedback">Feedback</Label>
-                <Textarea
-                  id="feedback"
-                  value={feedback}
-                  onChange={(e) => setFeedback(e.target.value)}
-                  placeholder="Provide feedback for the teacher. Required for 'Needs Correction' or 'Rejected'."
-                  className="min-h-[100px]"
-                />
-              </div>
-            </div>
-            <DialogFooter className="flex-wrap gap-2 sm:justify-end">
-               <Button variant="ghost" onClick={() => setSelectedSubmission(null)}>Cancel</Button>
-               <Button variant="destructive" onClick={() => handleStatusUpdate('Rejected')}>Reject</Button>
-               <Button variant="secondary" onClick={() => handleStatusUpdate('Needs Correction')}>Needs Correction</Button>
-               <Button onClick={() => handleStatusUpdate('Approved')}>Approve</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
     </div>
   );
 };
