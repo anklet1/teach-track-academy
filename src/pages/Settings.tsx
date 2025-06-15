@@ -1,15 +1,12 @@
+
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { User, X } from 'lucide-react';
+import ProfileSettings from "@/components/settings/ProfileSettings";
+import PasswordSettings from "@/components/settings/PasswordSettings";
+import SubjectsSettings from "@/components/settings/SubjectsSettings";
+import NotificationsSettings from "@/components/settings/NotificationsSettings";
 
 const Settings = () => {
   const location = useLocation();
@@ -93,123 +90,33 @@ const Settings = () => {
     <DashboardLayout>
       <div className="space-y-6 max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold">Settings</h1>
-        <Card>
-          <CardHeader>
-            <CardTitle>Profile</CardTitle>
-            <CardDescription>Update your personal information and profile picture.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-             <div className="flex items-center gap-4">
-              <Avatar className="h-20 w-20">
-                <AvatarImage src={profilePic} alt={name} />
-                <AvatarFallback>
-                  <User className="h-10 w-10" />
-                </AvatarFallback>
-              </Avatar>
-              <div className="space-y-2">
-                <Label htmlFor="profile-picture">Profile Picture</Label>
-                <Input id="profile-picture" type="file" accept="image/png, image/jpeg" onChange={handleImageChange} className="file:text-primary" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-            </div>
-            <Button onClick={handleSaveChanges}>Save Changes</Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Password</CardTitle>
-            <CardDescription>Change your password.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="current-password">Current Password</Label>
-              <Input id="current-password" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="new-password">New Password</Label>
-              <Input id="new-password" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
-            </div>
-             <div className="space-y-2">
-              <Label htmlFor="confirm-password">Confirm New Password</Label>
-              <Input id="confirm-password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
-            </div>
-            <Button onClick={handleUpdatePassword}>Update Password</Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Subjects</CardTitle>
-            <CardDescription>Manage school subjects.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label>Existing Subjects</Label>
-              <div className="flex flex-wrap gap-2">
-                {subjects.map(subject => (
-                  <Badge key={subject} variant="secondary" className="group relative pr-7">
-                    {subject}
-                    {role === 'teacher' && (
-                      <button
-                        onClick={() => handleDeleteSubject(subject)}
-                        className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full p-0.5 transition-opacity opacity-0 group-hover:opacity-100 hover:bg-destructive/20"
-                        aria-label={`Remove ${subject}`}
-                      >
-                        <X className="h-3 w-3 text-destructive" />
-                      </button>
-                    )}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-            {role === 'teacher' && (
-              <div className="space-y-2">
-                <Label htmlFor="new-subject">Add New Subject</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="new-subject"
-                    value={newSubject}
-                    onChange={(e) => setNewSubject(e.target.value)}
-                    placeholder="e.g. Creative Arts"
-                    onKeyDown={(e) => e.key === 'Enter' && handleAddSubject()}
-                  />
-                  <Button onClick={handleAddSubject}>Add Subject</Button>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Notifications</CardTitle>
-            <CardDescription>Manage your notification preferences.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="email-notifications" className="cursor-pointer">Email Notifications</Label>
-                <p className="text-sm text-muted-foreground">Receive emails about submission status and reminders.</p>
-              </div>
-              <Switch id="email-notifications" defaultChecked />
-            </div>
-             <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="in-app-notifications" className="cursor-pointer">In-app Notifications</Label>
-                <p className="text-sm text-muted-foreground">Show notifications within the dashboard.</p>
-              </div>
-              <Switch id="in-app-notifications" defaultChecked />
-            </div>
-          </CardContent>
-        </Card>
+        <ProfileSettings
+          name={name}
+          setName={setName}
+          email={email}
+          setEmail={setEmail}
+          profilePic={profilePic}
+          handleImageChange={handleImageChange}
+          handleSaveChanges={handleSaveChanges}
+        />
+        <PasswordSettings
+          currentPassword={currentPassword}
+          setCurrentPassword={setCurrentPassword}
+          newPassword={newPassword}
+          setNewPassword={setNewPassword}
+          confirmPassword={confirmPassword}
+          setConfirmPassword={setConfirmPassword}
+          handleUpdatePassword={handleUpdatePassword}
+        />
+        <SubjectsSettings
+          role={role}
+          subjects={subjects}
+          newSubject={newSubject}
+          setNewSubject={setNewSubject}
+          handleAddSubject={handleAddSubject}
+          handleDeleteSubject={handleDeleteSubject}
+        />
+        <NotificationsSettings />
       </div>
     </DashboardLayout>
   );
